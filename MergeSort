@@ -1,0 +1,119 @@
+#include<iostream>
+#include<ctime>
+#include<thread>
+using namespace std;
+
+// Массив из N элементов
+const int N = 10000000;
+int mas[N] = {};
+
+void INPUT()
+{
+    // Ввод элементов массива
+    for (int i = 0; i < N; i++)
+    {
+        cin >> mas[i];
+    }
+}
+void RandomizeArray()
+{
+    // Генерация элементов массива
+    for (int i = 0; i < N; i++)
+    {
+        mas[i] = rand() % 1000;
+    }
+}
+
+int merge_mas[N];
+
+void MergeSort(int start, int length)
+{
+    if (length <= 1)
+        return;
+
+    MergeSort(start, length / 2);
+    MergeSort(start + length / 2, length - length / 2);
+
+    int i = start;
+    int j = start + length / 2;
+    for (int k = start; k < start + length; k++)
+    {
+        if (j >= start + length or (i < start + length / 2 and mas[i] < mas[j]))
+        {
+            merge_mas[k] = mas[i];
+            i++;
+        }
+        else
+        {
+            merge_mas[k] = mas[j];
+            j++;
+        }
+    }
+
+    for (size_t i = start; i < start + length; i++)
+        mas[i] = merge_mas[i];
+}
+void Merge_Tread(int start, int length)
+{
+    if (length <= 1)
+        return;
+
+
+    thread leftMerge(MergeSort,start, length / 2);
+    thread rightMerge(MergeSort, start + length / 2, length - length / 2);
+
+    leftMerge.join();
+    rightMerge.join();
+
+    int i = start;
+    int j = start + length / 2;
+    for (int k = start; k < start + length; k++)
+    {
+        if (j >= start + length or (i < start + length / 2 and mas[i] < mas[j]))
+        {
+            merge_mas[k] = mas[i];
+            i++;
+        }
+        else
+        {
+            merge_mas[k] = mas[j];
+            j++;
+        }
+    }
+
+    for (size_t i = start; i < start + length; i++)
+        mas[i] = merge_mas[i];
+}
+
+void IsArrSort()
+{
+    int LargestElement = mas[0];
+
+    for (int i = 1; i < N; i++)
+    {
+        if (mas[i] > LargestElement)
+            LargestElement = mas[i];
+        else if (mas[i] < LargestElement)
+        {
+            cout << "Array was not sorted" << endl;
+            return;
+        }
+    }
+    cout << "Array was sorted";
+    cout << endl;
+    
+    cout << endl;
+}
+
+int main()
+{
+    RandomizeArray();
+
+    clock_t start = clock();
+    Merge_Tread(0, N);
+    clock_t sort_time = clock() - start;
+
+    cout << "SortTime: " << sort_time * 1.0 / CLOCKS_PER_SEC << endl << endl;
+
+    system("pause");
+}
