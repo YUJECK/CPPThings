@@ -1,0 +1,66 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+template<typename T, unsigned N>
+struct HashMap
+{
+	struct Element
+	{
+		string key;
+		T value;
+
+		Element * nextElement = nullptr;
+	};
+
+	int HashFunc(string key)
+	{
+		int sum = 0;
+		for (int i = 0; i < key.length(); i++){sum += key[i];}
+	
+		srand(sum);
+
+		sum = 0;
+		for (int i = 0; i < key.length(); i++){sum += rand() % 11 - 20 * (unsigned)key[i];}
+	
+		return sum%N;
+	}
+
+	T Find(string key){return elements[HashFunc(key)]->value;}
+
+	void Add(string key, T value)
+	{
+		Element* curr = elements[HashFunc(key)];
+		
+
+		if (curr == nullptr)
+		{
+			curr = new Element;
+			curr->key = key;
+			curr->value = value;
+			curr->nextElement = nullptr;
+			elements[HashFunc(key)] = curr;
+		}
+		else
+		{
+			while (curr->nextElement != nullptr) curr = curr->nextElement;
+			curr = new Element;
+			curr->key = key;
+			curr->value = value;
+			curr->nextElement = nullptr;
+			curr->nextElement = curr;
+		}
+	}
+
+private:
+	Element* elements[N] = {};
+};
+
+
+int main()
+{
+	HashMap<string, 1000> myHash;
+	myHash.Add("Cat", "The cuttest creature you ever have seen");
+	cout << myHash.Find("Cat");
+}
